@@ -1,21 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AirMonitor.Data;
+using AirMonitor.ViewModels;
+using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace AirMonitor.Views
 {
-    // Learn more about making custom code visible in the Xamarin.Forms previewer
-    // by visiting https://aka.ms/xamarinforms-previewer
     [DesignTimeVisible(false)]
     public partial class DetailsPage : ContentPage
     {
-        public DetailsPage()
+        public DetailsPage(AirlyMesurements mesurements)
         {
             InitializeComponent();
+
+            var detailsViewModel = new DetailsViewModel();
+            detailsViewModel.Init(mesurements);
+
+            BindingContext = detailsViewModel;
         }
 
         private void Help_Clicked(object sender, EventArgs e)

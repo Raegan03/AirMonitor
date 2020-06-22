@@ -11,9 +11,6 @@
              Title="Details Page"
              Style="{StaticResource DetailsPageStyle}">
 
-    <ContentPage.BindingContext>
-        <viewModels:DetailsViewModel/>
-    </ContentPage.BindingContext>
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:ValueToPercentConverter x:Key="ValueToPercent"/>
@@ -125,8 +122,6 @@
                                 Text="{Binding PressureValue, StringFormat='{0} hPa'}"
                                 Style="{StaticResource NormalTextLabelStyle}"/>
                             <Slider
-                                Maximum="1100"
-                                Minimum="900"
                                 Value="{Binding PressureValue}"
                                 Style="{StaticResource SliderStyle}"/>
                         </StackLayout>

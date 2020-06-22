@@ -5,11 +5,56 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="AirMonitor.Views.HomePage"
+             xmlns:converters="clr-namespace:AirMonitor.Converters"
              Title="Home Page">
-    <Button
-        Text="Go to details"
-        HorizontalOptions="Center"
-        VerticalOptions="Center"
-        Command="{Binding GoToDetailsCommand}"
-        />
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:AddressToCityCountryConverter x:Key="AddressToCityCountry"/>
+            <converters:AddressToStreetConverter x:Key="AddressToStreet"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <StackLayout>
+        <ScrollView>
+            <ListView ItemsSource="{Binding AirlyInstallations}" ItemTapped="ItemTappedHandle" RowHeight="75">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell Height="75">
+                            <Grid BackgroundColor="#eee" Padding="20">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="75"></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="75"></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                    <ColumnDefinition></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Image VerticalOptions="Start" HorizontalOptions="Center" Source="{Binding Sponsor.Logo}" Grid.Column="0"></Image>
+                                <StackLayout Orientation="Vertical" Grid.Column="1">
+                                    <Label Text="{Binding Sponsor.Name}"
+                            TextColor="#000" />
+                                    <Label Text="{Binding Sponsor.Description}"
+                            TextColor="#333" 
+                            FontSize="10"/>
+                                </StackLayout>
+                                <StackLayout Orientation="Vertical" Grid.Column="2">
+                                    <Label Text="{Binding Address, Converter={StaticResource AddressToStreet}}"
+                            TextColor="#000" />
+                                    <Label Text="{Binding Address, Converter={StaticResource AddressToCityCountry}}"
+                            TextColor="#333" 
+                            FontSize="10"/>
+                                </StackLayout>
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </ScrollView>
+        <ActivityIndicator IsRunning="{Binding FetchingData}" IsVisible="{Binding FetchingData}"></ActivityIndicator>
+        <Button
+            Text="Fetch Data"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            Command="{Binding AirlyTestCommand}"
+            />
+    </StackLayout>
 </ContentPage>

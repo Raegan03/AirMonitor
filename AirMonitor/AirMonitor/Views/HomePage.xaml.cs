@@ -1,4 +1,5 @@
-﻿using AirMonitor.ViewModels;
+﻿using AirMonitor.Data;
+using AirMonitor.ViewModels;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -12,6 +13,11 @@ namespace AirMonitor.Views
             InitializeComponent();
 
             BindingContext = new HomeViewModel(Navigation);
+        }
+
+        private void ItemTappedHandle(object sender, ItemTappedEventArgs e)
+        {
+            (BindingContext as HomeViewModel)?.GoToDetailsCommand.Execute(e.ItemIndex);
         }
     }
 }

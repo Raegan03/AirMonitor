@@ -1,19 +1,45 @@
-﻿using AirMonitor.Views;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using Xamarin.Forms;
+﻿using AirMonitor.Data;
+using Android.App;
+using System;
+using System.Linq;
 
 namespace AirMonitor.ViewModels
 {
-    public class DetailsViewModel : INotifyPropertyChanged
+    public class DetailsViewModel : BaseViewModel
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public AirlyMesurements airlyMesurements;
 
         public DetailsViewModel()
         {
+;
+        }
 
+        public void Init(AirlyMesurements airlyMesurements)
+        {
+            this.airlyMesurements = airlyMesurements;
+
+            var index = airlyMesurements.Current.Indexes[0];
+            CaqiValue = (int)Math.Round(index.Value ?? 0, 0);
+            CaqiTitle = index.Description;
+            CaqiDescription = index.Advice;
+
+            var pm25Value = airlyMesurements.Current.Values.FirstOrDefault(x => x.Name == "PM25");
+            var pm25Standard = airlyMesurements.Current.Standards.FirstOrDefault(x => x.Pollutant == "PM25");
+
+            Pm25Value = (int)Math.Round(pm25Value != null ? pm25Value.Value : 0, 0);
+            Pm25Percent = (int)Math.Round(pm25Standard != null ? pm25Standard.Percent : 0, 0);
+
+            var pm10Value = airlyMesurements.Current.Values.FirstOrDefault(x => x.Name == "PM10");
+            var pm10Standard = airlyMesurements.Current.Standards.FirstOrDefault(x => x.Pollutant == "PM10");
+
+            Pm10Value = (int)Math.Round(pm10Value != null ? pm10Value.Value : 0, 0);
+            Pm10Percent = (int)Math.Round(pm10Standard != null ? pm10Standard.Percent : 0, 0);
+
+            var humidityValue = airlyMesurements.Current.Values.FirstOrDefault(x => x.Name == "HUMIDITY");
+            var pressureValue = airlyMesurements.Current.Values.FirstOrDefault(x => x.Name == "PRESSURE");
+
+            HumidityValue = humidityValue != null ? humidityValue.Value : 0;
+            PressureValue = (int)Math.Round(pressureValue != null ? pressureValue.Value : 0, 0);
         }
 
         private int _caqiValue = 57;
@@ -77,22 +103,6 @@ namespace AirMonitor.ViewModels
         {
             get => _pressureValue;
             set => SetProperty(ref _pressureValue, value);
-        }
-
-        private void RaisePropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-
-            field = value;
-
-            RaisePropertyChanged(propertyName);
-
-            return true;
         }
     }
 }

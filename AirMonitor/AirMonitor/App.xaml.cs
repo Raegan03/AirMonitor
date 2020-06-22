@@ -1,7 +1,10 @@
-﻿using System;
+﻿using System.IO;
+using System.Reflection;
+using AirMonitor.Data;
+using AirMonitor.Services;
 using AirMonitor.Views;
+using Newtonsoft.Json;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
 namespace AirMonitor
 {
@@ -10,8 +13,17 @@ namespace AirMonitor
         public App()
         {
             InitializeComponent();
-
             MainPage = new RootTabbedPage();
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "AirMonitor.config.json";
+
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string result = reader.ReadToEnd();
+                AirlyService.AirlyConfig = JsonConvert.DeserializeObject<AirlyConfig>(result);
+            }
         }
 
         protected override void OnStart()

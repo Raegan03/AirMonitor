@@ -1,0 +1,8 @@
+﻿{
+	"api_key":"ZgYW2LboaKE8qTrnuFE2ErqWH3a6I9z1",
+	"api_uri":"https://airapi.airly.eu/v2/",
+	"api_installations_nearest":"installations/nearest?",
+	"api_installations_by_id":"installations/{0}?",
+	"api_measurements_nearest":"measurements/nearest?",
+	"api_measurements_by_id":"measurements/installation?",
+}
