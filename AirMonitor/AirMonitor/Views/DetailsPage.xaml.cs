@@ -9,7 +9,7 @@ namespace AirMonitor.Views
     [DesignTimeVisible(false)]
     public partial class DetailsPage : ContentPage
     {
-        public DetailsPage(AirlyMesurements mesurements)
+        public DetailsPage(Measurement  mesurements)
         {
             InitializeComponent();
 

@@ -1,7 +1,9 @@
 ﻿using AirMonitor.Data;
 using AirMonitor.Services;
 using AirMonitor.Views;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using Xamarin.Forms;
 
@@ -16,9 +18,9 @@ namespace AirMonitor.ViewModels
             _navigation = navigation;
         }
 
-        private ObservableCollection<AirlyInstallation> _airlyInstallations = 
-            new ObservableCollection<AirlyInstallation>();
-        public ObservableCollection<AirlyInstallation> AirlyInstallations
+        private ObservableCollection<Installation> _airlyInstallations = 
+            new ObservableCollection<Installation>();
+        public ObservableCollection<Installation> AirlyInstallations
         {
             get => _airlyInstallations;
             set => SetProperty(ref _airlyInstallations, value);
@@ -39,6 +41,8 @@ namespace AirMonitor.ViewModels
         {
             FetchingData = true;
             var measurements = await AirlyService.TryGetAirlyMeasurements(AirlyInstallations[index].Id);
+            await App.Database.SaveMeasurements(new List<Measurement> { measurements });
+
             FetchingData = false;
 
             await _navigation.PushAsync(new DetailsPage(measurements));
@@ -51,8 +55,10 @@ namespace AirMonitor.ViewModels
         private async void AirlyTest()
         {
             FetchingData = true;
-            AirlyInstallations = new ObservableCollection<AirlyInstallation>(
+            AirlyInstallations = new ObservableCollection<Installation>(
                 await AirlyService.TryGetAirlyInstallations());
+
+            await App.Database.SaveInstallations(AirlyInstallations.ToList());
             FetchingData = false;
         }
     }

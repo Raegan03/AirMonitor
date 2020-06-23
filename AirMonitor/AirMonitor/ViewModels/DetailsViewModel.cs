@@ -7,14 +7,14 @@ namespace AirMonitor.ViewModels
 {
     public class DetailsViewModel : BaseViewModel
     {
-        public AirlyMesurements airlyMesurements;
+        public Measurement  airlyMesurements;
 
         public DetailsViewModel()
         {
 ;
         }
 
-        public void Init(AirlyMesurements airlyMesurements)
+        public void Init(Measurement  airlyMesurements)
         {
             this.airlyMesurements = airlyMesurements;
 
