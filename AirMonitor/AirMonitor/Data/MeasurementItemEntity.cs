@@ -15,16 +15,16 @@ namespace AirMonitor.Data
         [Column("from_date_time")]
         public DateTime FromDateTime { get; set; }
 
-        [Column("from_date_time")]
+        [Column("till_date_time")]
         public DateTime TillDateTime { get; set; }
 
-        [Column("from_date_time")]
+        [Column("values")]
         public string Values { get; set; }
 
-        [Column("from_date_time")]
+        [Column("indexes")]
         public string Indexes { get; set; }
 
-        [Column("from_date_time")]
+        [Column("standards")]
         public string Standards { get; set; }
 
         public MeasurementItemEntity() { }

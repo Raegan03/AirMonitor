@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using AirMonitor.Data;
 using AirMonitor.Helpers;
 using AirMonitor.Services;
@@ -11,16 +12,11 @@ namespace AirMonitor
 {
     public partial class App : Application
     {
-        public static DatabaseHelper Database;
+        public static DataHelper DataHelper;
+        public static DatabaseHelper DatabaseHelper;
 
         public App()
         {
-            Database = new DatabaseHelper();
-            Database.InitDatabase();
-
-            InitializeComponent();
-            MainPage = new RootTabbedPage();
-
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = "AirMonitor.config.json";
 
@@ -30,30 +26,63 @@ namespace AirMonitor
                 string result = reader.ReadToEnd();
                 AirlyService.AirlyConfig = JsonConvert.DeserializeObject<AirlyConfig>(result);
             }
+
+            InitializeComponent();
+            Task.Run(async () => 
+                { 
+                    await InitDatabase();
+                    await InitData();
+
+                }).Wait();
+
+            MainPage = new RootTabbedPage();
         }
 
         protected override void OnStart()
         {
-            if(Database == null)
+            if(DatabaseHelper == null)
             {
-                Database = new DatabaseHelper();
-                Database.InitDatabase();
+                Task.Run(async () => { await InitDatabase(); }).Wait();
+            }
+
+            if (DataHelper == null)
+            {
+                Task.Run(async () => { await InitData(); }).Wait();
             }
         }
 
         protected override void OnSleep()
         {
-            Database.Dispose();
-            Database = null;
+            DatabaseHelper.Dispose();
+            DatabaseHelper = null;
+
+            DataHelper.Dispose();
+            DataHelper = null;
         }
 
         protected override void OnResume()
         {
-            if (Database == null)
+            if (DatabaseHelper == null)
             {
-                Database = new DatabaseHelper();
-                Database.InitDatabase();
+                Task.Run(async () => { await InitDatabase(); }).Wait();
             }
+
+            if (DataHelper == null)
+            {
+                Task.Run(async () => { await InitData(); }).Wait();
+            }
+        }
+
+        private async Task InitData()
+        {
+            DataHelper = new DataHelper();
+            await DataHelper.InitData();
+        }
+
+        private async Task InitDatabase()
+        {
+            DatabaseHelper = new DatabaseHelper();
+            await DatabaseHelper.InitDatabase();
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using AirMonitor.Data;
-using AirMonitor.ViewModels;
+﻿using AirMonitor.ViewModels;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -12,7 +11,10 @@ namespace AirMonitor.Views
         {
             InitializeComponent();
 
-            BindingContext = new HomeViewModel(Navigation);
+            var homeViewModel = new HomeViewModel(Navigation);
+            homeViewModel.CheckForData();
+
+            BindingContext = homeViewModel;
         }
 
         private void ItemTappedHandle(object sender, ItemTappedEventArgs e)

@@ -1,9 +1,6 @@
 ﻿using AirMonitor.Data;
-using AirMonitor.Services;
 using AirMonitor.Views;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Input;
 using Xamarin.Forms;
 
@@ -16,6 +13,12 @@ namespace AirMonitor.ViewModels
         public HomeViewModel(INavigation navigation)
         {
             _navigation = navigation;
+        }
+
+        public void CheckForData()
+        {
+            AirlyInstallations = new ObservableCollection<Installation>(App.DataHelper.AirlyInstallations);
+            EmptyData = AirlyInstallations.Count == 0;
         }
 
         private ObservableCollection<Installation> _airlyInstallations = 
@@ -33,32 +36,36 @@ namespace AirMonitor.ViewModels
             set => SetProperty(ref _fetchingData, value);
         }
 
+        private bool _emptyData;
+        public bool EmptyData
+        {
+            get => _emptyData;
+            set => SetProperty(ref _emptyData, value);
+        }
+
         private ICommand _goToDetailsCommand;
         public ICommand GoToDetailsCommand => _goToDetailsCommand ??
             (_goToDetailsCommand = new Command<int>(OnGoToDetails));
 
         private async void OnGoToDetails(int index)
         {
-            FetchingData = true;
-            var measurements = await AirlyService.TryGetAirlyMeasurements(AirlyInstallations[index].Id);
-            await App.Database.SaveMeasurements(new List<Measurement> { measurements });
-
-            FetchingData = false;
-
+            var measurements = App.DataHelper.GetMeasurement(AirlyInstallations[index].Id);
             await _navigation.PushAsync(new DetailsPage(measurements));
         }
 
-        private ICommand _airlyTestCommand;
-        public ICommand AirlyTestCommand => _airlyTestCommand ??
-            (_airlyTestCommand = new Command(AirlyTest));
+        private ICommand _fetchDataCommand;
+        public ICommand FetchDataCommand => _fetchDataCommand ??
+            (_fetchDataCommand = new Command(OnFetchData));
 
-        private async void AirlyTest()
+        private async void OnFetchData()
         {
             FetchingData = true;
-            AirlyInstallations = new ObservableCollection<Installation>(
-                await AirlyService.TryGetAirlyInstallations());
 
-            await App.Database.SaveInstallations(AirlyInstallations.ToList());
+            await App.DataHelper.TryFetchData();
+            AirlyInstallations = new ObservableCollection<Installation>(App.DataHelper.AirlyInstallations);
+
+            EmptyData = AirlyInstallations.Count == 0;
+
             FetchingData = false;
         }
     }

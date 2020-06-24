@@ -10,11 +10,11 @@ namespace AirMonitor.Data
         [JsonProperty("current")]
         public MeasurementItem Current { get; set; }
 
-        [JsonProperty("history")]
-        public List<MeasurementItem> History { get; set; }
+        //[JsonProperty("history")]
+        //public List<MeasurementItem> History { get; set; }
 
-        [JsonProperty("forecast")]
-        public List<MeasurementItem> Forecast { get; set; }
+        //[JsonProperty("forecast")]
+        //public List<MeasurementItem> Forecast { get; set; }
 
         public Installation Installation { get; set; }
     }

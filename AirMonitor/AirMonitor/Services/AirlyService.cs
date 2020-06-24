@@ -13,43 +13,28 @@ namespace AirMonitor.Services
     {
         public static AirlyConfig AirlyConfig { get; set; }
 
-        private static List<Installation> _airlyInstallations;
-        private static Dictionary<string, Measurement> _airlyMeasurements = 
-            new Dictionary<string, Measurement>();
-
-        public static async Task<IReadOnlyList<Installation>> TryGetAirlyInstallations()
+        public static async Task<(List<Installation> installations, List<Measurement> measurements)> GetDataFromAirly()
         {
-            if (_airlyInstallations != null && _airlyInstallations.Count > 0) return _airlyInstallations;
+            var airlyInstallations = await GetNearestInstallations();
+            if (airlyInstallations == null)
+                return (new List<Installation>(), new List<Measurement>());
 
-            _airlyInstallations = await App.Database.GetInstallations();
-            if (_airlyInstallations != null && _airlyInstallations.Count > 0) return _airlyInstallations;
+            var airlyMeasurements = new List<Measurement>();
 
-            _airlyInstallations = await GetNearestInstallations();
-
-            foreach (var installation in _airlyInstallations)
+            foreach (var installation in airlyInstallations)
             {
                 var airlyMesurements = await GetMeasurementsById(installation.Id);
                 if (airlyMesurements != null)
                 {
                     airlyMesurements.Installation = installation;
-                    _airlyMeasurements.Add(installation.Id, airlyMesurements);
+                    airlyMeasurements.Add(airlyMesurements);
                 }
             }
-            return _airlyInstallations;
+            return (airlyInstallations, airlyMeasurements);
         }
 
-        public static async Task<Measurement> TryGetAirlyMeasurements(string installationId)
-        {
-            if(!_airlyMeasurements.TryGetValue(installationId, out Measurement  airlyMesurements))
-            {
-                airlyMesurements = await GetMeasurementsById(installationId);
-                if(airlyMesurements != null)
-                {
-                    _airlyMeasurements.Add(installationId, airlyMesurements);
-                }
-            }
-            return airlyMesurements;
-        }
+        public static async Task<Measurement> GetMeasurementFromAirly(string installationId)
+            => await GetMeasurementsById(installationId);
 
         private static async Task<List<Installation>> GetNearestInstallations()
         {
@@ -68,20 +53,24 @@ namespace AirMonitor.Services
                     $"lat={location.Latitude}",
                     $"lng={location.Longitude}",
                     $"maxDistanceKM=-1",
-                    $"maxResults=1",
+                    $"maxResults=10",
                 };
 
                 var uri = BuildGetUri(AirlyConfig.ApiInstallationsNearest, null, queries);
                 try
                 {
                     var response = await client.GetAsync(uri);
-                    if(response != null)
+                    if(response != null && response.IsSuccessStatusCode)
                     {
                         var resTxt = await response.Content.ReadAsStringAsync();
                         foreach (var item in response.Headers.GetValues("X-RateLimit-Remaining-day"))
                             Console.WriteLine(item);
 
                         return JsonConvert.DeserializeObject< List<Installation>>(resTxt);
+                    }
+                    else
+                    {
+                        return null;
                     }
                 }
                 catch (ArgumentNullException argumentError)
@@ -93,8 +82,6 @@ namespace AirMonitor.Services
                     return null;
                 }
             };
-
-            return null;
         }
 
         private static async Task<Measurement> GetMeasurementsById(string installationId)
@@ -111,13 +98,17 @@ namespace AirMonitor.Services
                 try
                 {
                     var response = await client.GetAsync(uri);
-                    if (response != null)
+                    if (response != null && response.IsSuccessStatusCode)
                     {
                         var resTxt = await response.Content.ReadAsStringAsync();
                         foreach (var item in response.Headers.GetValues("X-RateLimit-Remaining-day"))
                             Console.WriteLine(item);
 
                         return JsonConvert.DeserializeObject<Measurement>(resTxt);
+                    }
+                    else
+                    {
+                        return null;
                     }
                 }
                 catch (ArgumentNullException argumentError)
@@ -129,8 +120,6 @@ namespace AirMonitor.Services
                     return null;
                 }
             };
-
-            return null;
         }
 
         private static async Task<Xamarin.Essentials.Location> GetGeolocation()

@@ -14,8 +14,20 @@
         </ResourceDictionary>
     </ContentPage.Resources>
     <StackLayout>
+        <Button
+            Text="Load Data"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            IsVisible="{Binding EmptyData}"
+            Command="{Binding FetchDataCommand}"
+            />
         <ScrollView>
-            <ListView ItemsSource="{Binding AirlyInstallations}" ItemTapped="ItemTappedHandle" RowHeight="75">
+            <ListView ItemsSource="{Binding AirlyInstallations}" 
+                        IsPullToRefreshEnabled="True"
+                        RefreshCommand="{Binding FetchDataCommand}"
+                        IsRefreshing="{Binding FetchingData}"
+                        ItemTapped="ItemTappedHandle" 
+                        RowHeight="75">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell Height="75">
@@ -49,12 +61,5 @@
                 </ListView.ItemTemplate>
             </ListView>
         </ScrollView>
-        <ActivityIndicator IsRunning="{Binding FetchingData}" IsVisible="{Binding FetchingData}"></ActivityIndicator>
-        <Button
-            Text="Fetch Data"
-            HorizontalOptions="Center"
-            VerticalOptions="Center"
-            Command="{Binding AirlyTestCommand}"
-            />
     </StackLayout>
 </ContentPage>

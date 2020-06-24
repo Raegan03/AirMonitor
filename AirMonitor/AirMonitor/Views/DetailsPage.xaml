@@ -6,7 +6,6 @@
              mc:Ignorable="d"
              x:Class="AirMonitor.Views.DetailsPage"
              xmlns:controls="clr-namespace:AirMonitor.Views.Controls"
-             xmlns:viewModels="clr-namespace:AirMonitor.ViewModels"
              xmlns:converters="clr-namespace:AirMonitor.Converters"
              Title="Details Page"
              Style="{StaticResource DetailsPageStyle}">
